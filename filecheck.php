@@ -93,7 +93,7 @@ class Validator{
 
     const CSV_FILE_EXISTENCE_HEADER = array("file_path","is_file_exist");
 
-    public static function update_allowed_files_existence($csv_file_path){
+    public static function update_files_existence($csv_file_path){
         $csv_file = new CSVFile($csv_file_path);
         $csv_rows = $csv_file->get_data_rows();
 
@@ -129,6 +129,7 @@ class Validator{
         $csv_file->append_rows($file_paths_as_row);
     }
 
+
 }
 
 $absolute_directory_path = "C:/xampp/htdocs/file-checker/house";
@@ -137,5 +138,5 @@ $csv_allowed_files_file_path = "C:/xampp/htdocs/file-checker/allowed_files.csv";
 $wordpress_directory_path = "C:/xampp/htdocs/file-checker/wordpress";
 $csv_export_file_path = "C:/xampp/htdocs/file-checker/export_directory.csv";
 
-Validator::update_allowed_files_existence($csv_export_file_path);
+Validator::update_files_existence($csv_export_file_path);
 
