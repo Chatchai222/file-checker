@@ -1,5 +1,7 @@
 <?php
 
+use ParagonIE\Sodium\Core\Curve25519\Ge\P2;
+
 class DirectoryChecker{
     
     public static function get_file_names_in_directory($absolute_directory_path){
@@ -12,10 +14,7 @@ class DirectoryChecker{
 
     public static function get_absolute_file_paths_in_directory_and_subdirectory($absolute_directory_path){
         $output = array();
-        $file_names = scandir($absolute_directory_path);
-
-        unset($file_names[array_search('.', $file_names, true)]);
-        unset($file_names[array_search('..', $file_names, true)]);
+        $file_names = DirectoryChecker::get_file_names_in_directory($absolute_directory_path);
 
         foreach($file_names as $file_name){
 
@@ -101,17 +100,20 @@ class Validator{
         $updated_rows = array();
         foreach($csv_rows as $row){
             $file_path = $row[0];
-            $updated_row = $row;
-            if(file_exists($file_path)){
-                $updated_row[1] = "TRUE";
-            } else {
-                $updated_row[1] = "FALSE";
-            }
+            $updated_row = Validator::get_csv_row_of_file_path_and_existence($file_path);
             array_push($updated_rows, $updated_row);
         }
 
         $csv_file->clear_data_rows();
         $csv_file->append_rows($updated_rows);
+    }
+
+    private static function get_csv_row_of_file_path_and_existence($absolute_file_path){
+        if(file_exists($absolute_file_path)){
+            return array($absolute_file_path, "TRUE");
+        } else {
+            return array($absolute_file_path, "FALSE");
+        }
     }
 
     public static function export_directory_to_csv($absolute_directory_path, $empty_csv_file_path){
@@ -130,10 +132,10 @@ class Validator{
 }
 
 $absolute_directory_path = "C:/xampp/htdocs/file-checker/house";
-$csv_file_path = "C:/xampp/htdocs/file-checker/allowed_files.csv";
+$csv_allowed_files_file_path = "C:/xampp/htdocs/file-checker/allowed_files.csv";
 
 $wordpress_directory_path = "C:/xampp/htdocs/file-checker/wordpress";
 $csv_export_file_path = "C:/xampp/htdocs/file-checker/export_directory.csv";
 
-Validator::export_directory_to_csv($wordpress_directory_path, $csv_export_file_path);
+Validator::update_allowed_files_existence($csv_export_file_path);
 
