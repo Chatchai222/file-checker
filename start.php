@@ -13,15 +13,16 @@ print_post();
 
 if(isset($_POST["update_file_existence_in_csv"])){
     echo "About to update file existence in CSV <br>";
-    FileChecker::update_files_existence($_POST["csv_file_path_entry_bar"]);
+    $absolute_csv_file_path = $_POST["csv_file_path_entry_bar"];
+    FileChecker::update_files_existence($absolute_csv_file_path);
 }
 
-if(isset($_POST["export_directory_file_paths_to_csv"])){
+if(isset($_POST["export_directory_file_paths_to_empty_csv"])){
     echo "About to export directory file paths to CSV <br>";
+    $absolute_directory_path = $_POST["directory_path_entry_bar"];
+    $absolute_csv_file_path = $_POST["csv_file_path_entry_bar"];
+    FileChecker::export_directory_to_csv($absolute_directory_path, $absolute_csv_file_path);
 }
-
-
-
 
 ?>
 
@@ -33,6 +34,11 @@ if(isset($_POST["export_directory_file_paths_to_csv"])){
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Start Page</title>
+        <style>
+            input {
+                width: 300px;
+            }
+        </style>
     </head>
     <body>
 
@@ -50,12 +56,9 @@ if(isset($_POST["export_directory_file_paths_to_csv"])){
             <br>
 
             <input type="submit" name="update_file_existence_in_csv" value="Update file existence in CSV">
-            <input type="submit" name="export_directory_file_paths_to_csv" value="Export directory file paths to CSV">
+            <input type="submit" name="export_directory_file_paths_to_empty_csv" value="Export directory file paths to empty CSV">
+        
         </form>
 
-
-        <script>
-
-        </script>
     </body>
 </html>

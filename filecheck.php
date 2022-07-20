@@ -17,7 +17,6 @@ class DirectoryChecker{
         foreach($file_names as $file_name){
 
             $absolute_file_path = "$absolute_directory_path/$file_name";
-
             array_push($output, $absolute_file_path);
 
             if(is_dir($absolute_file_path)){
@@ -89,6 +88,10 @@ class CSVFile{
         $this->append_row($header_row);
     }
 
+    public function is_file_empty(){
+        return file_get_contents($this->absolute_file_path) === "";
+    }
+
 };
 
 class FileChecker{
@@ -96,15 +99,16 @@ class FileChecker{
     const CSV_FILE_EXISTENCE_HEADER = array("file_path","is_file_exist");
 
     public static function update_files_existence($csv_file_path){
-        if(FileChecker::is_files_existence_csv_file_valid($csv_file_path)){
+        try{
             $csv_file = new CSVFile($csv_file_path);
             $csv_rows = $csv_file->get_data_rows();
-
             $updated_rows = FileChecker::get_updated_csv_rows_file_path_and_existence($csv_rows);
-
             $csv_file->clear_data_rows();
             $csv_file->append_rows($updated_rows);
+        } catch (Exception $e){
+            echo "Error: Exception $e->getMessage() <br>";
         }
+
     }
 
     private static function get_csv_row_of_file_path_and_existence($absolute_file_path){
@@ -116,13 +120,13 @@ class FileChecker{
     }
 
     private static function get_updated_csv_rows_file_path_and_existence($csv_rows){
-        $updated_rows = array();
+        $bunch_of_updated_rows = array();
         foreach($csv_rows as $row){
             $file_path = $row[0];
             $updated_row = FileChecker::get_csv_row_of_file_path_and_existence($file_path);
-            array_push($updated_rows, $updated_row);
+            array_push($bunch_of_updated_rows, $updated_row);
         }
-        return $updated_row;
+        return $bunch_of_updated_rows;
     }
 
     private static function is_files_existence_csv_file_valid($csv_file_path){
@@ -136,22 +140,24 @@ class FileChecker{
     }
 
     public static function export_directory_to_csv($absolute_directory_path, $empty_csv_file_path){
-        $csv_file = new CSVFile($empty_csv_file_path);
-        $file_paths_in_directory = DirectoryChecker::get_absolute_file_paths_in_directory_and_subdirectory($absolute_directory_path);
-        $file_paths_as_row = array();
-        foreach($file_paths_in_directory as $file_path){
-            $row = array($file_path);
-            array_push($file_paths_as_row,$row);
+        try{
+            $csv_file = new CSVFile($empty_csv_file_path);
+            $csv_file->clear_all_rows();
+            $file_paths_in_directory = DirectoryChecker::get_absolute_file_paths_in_directory_and_subdirectory($absolute_directory_path);
+            $file_paths_as_row = array();
+            foreach($file_paths_in_directory as $file_path){
+                $row = array($file_path);
+                array_push($file_paths_as_row,$row);
+            }
+    
+            $csv_file->append_row(FileChecker::CSV_FILE_EXISTENCE_HEADER);
+            $csv_file->append_rows($file_paths_as_row);
+        } catch (Exception $e){
+            echo "$e->getMessage() <br>";
         }
 
-        $csv_file->append_row(FileChecker::CSV_FILE_EXISTENCE_HEADER);
-        $csv_file->append_rows($file_paths_as_row);
     }
 
-}
-
-function hello_world(){
-    echo "Hello world <br>";
 }
 
 $absolute_directory_path = "C:/xampp/htdocs/file-checker/house";
