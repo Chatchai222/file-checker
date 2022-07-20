@@ -1,7 +1,5 @@
 <?php
 
-use ParagonIE\Sodium\Core\Curve25519\Ge\P2;
-
 class DirectoryChecker{
     
     public static function get_file_names_in_directory($absolute_directory_path){
@@ -40,7 +38,11 @@ class CSVFile{
     private $absolute_file_path;
 
     public function __construct($in_absolute_file_path){
-        $this->absolute_file_path = $in_absolute_file_path;
+        if(file_exists($in_absolute_file_path)){
+            $this->absolute_file_path = $in_absolute_file_path;
+        } else {
+            throw new Exception("File not found");
+        } 
     }
 
     public function append_row($in_row){
@@ -89,23 +91,20 @@ class CSVFile{
 
 };
 
-class Validator{
+class FileChecker{
 
     const CSV_FILE_EXISTENCE_HEADER = array("file_path","is_file_exist");
 
     public static function update_files_existence($csv_file_path){
-        $csv_file = new CSVFile($csv_file_path);
-        $csv_rows = $csv_file->get_data_rows();
+        if(FileChecker::is_files_existence_csv_file_valid($csv_file_path)){
+            $csv_file = new CSVFile($csv_file_path);
+            $csv_rows = $csv_file->get_data_rows();
 
-        $updated_rows = array();
-        foreach($csv_rows as $row){
-            $file_path = $row[0];
-            $updated_row = Validator::get_csv_row_of_file_path_and_existence($file_path);
-            array_push($updated_rows, $updated_row);
+            $updated_rows = FileChecker::get_updated_csv_rows_file_path_and_existence($csv_rows);
+
+            $csv_file->clear_data_rows();
+            $csv_file->append_rows($updated_rows);
         }
-
-        $csv_file->clear_data_rows();
-        $csv_file->append_rows($updated_rows);
     }
 
     private static function get_csv_row_of_file_path_and_existence($absolute_file_path){
@@ -114,6 +113,26 @@ class Validator{
         } else {
             return array($absolute_file_path, "FALSE");
         }
+    }
+
+    private static function get_updated_csv_rows_file_path_and_existence($csv_rows){
+        $updated_rows = array();
+        foreach($csv_rows as $row){
+            $file_path = $row[0];
+            $updated_row = FileChecker::get_csv_row_of_file_path_and_existence($file_path);
+            array_push($updated_rows, $updated_row);
+        }
+        return $updated_row;
+    }
+
+    private static function is_files_existence_csv_file_valid($csv_file_path){
+        if(file_exists($csv_file_path)){
+            $csv_file = new CSVFile($csv_file_path);
+            if($csv_file->get_header_row() === FileChecker::CSV_FILE_EXISTENCE_HEADER){
+                return true;
+            }
+        }
+        return false;
     }
 
     public static function export_directory_to_csv($absolute_directory_path, $empty_csv_file_path){
@@ -125,11 +144,14 @@ class Validator{
             array_push($file_paths_as_row,$row);
         }
 
-        $csv_file->append_row(Validator::CSV_FILE_EXISTENCE_HEADER);
+        $csv_file->append_row(FileChecker::CSV_FILE_EXISTENCE_HEADER);
         $csv_file->append_rows($file_paths_as_row);
     }
 
+}
 
+function hello_world(){
+    echo "Hello world <br>";
 }
 
 $absolute_directory_path = "C:/xampp/htdocs/file-checker/house";
@@ -138,5 +160,5 @@ $csv_allowed_files_file_path = "C:/xampp/htdocs/file-checker/allowed_files.csv";
 $wordpress_directory_path = "C:/xampp/htdocs/file-checker/wordpress";
 $csv_export_file_path = "C:/xampp/htdocs/file-checker/export_directory.csv";
 
-Validator::update_files_existence($csv_export_file_path);
+
 
