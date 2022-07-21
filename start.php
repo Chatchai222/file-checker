@@ -9,19 +9,22 @@ function print_post(){
     }
 }
 
-print_post();
+
+$file_checker = FileChecker::get_instance();
 
 if(isset($_POST["update_file_existence_in_csv"])){
-    echo "About to update file existence in CSV <br>";
     $absolute_csv_file_path = $_POST["csv_file_path_entry_bar"];
-
+    $file_checker->update_file_existence_csv_file($absolute_csv_file_path);
+    $status_message = $file_checker->get_latest_status_message();
+    echo "$status_message <br>";
 }
 
 if(isset($_POST["export_directory_file_paths_to_empty_csv"])){
-    echo "About to export directory file paths to CSV <br>";
     $absolute_directory_path = $_POST["directory_path_entry_bar"];
     $absolute_csv_file_path = $_POST["csv_file_path_entry_bar"];
-
+    $file_checker->export_directory_to_csv($absolute_directory_path, $absolute_csv_file_path);
+    $status_message = $file_checker->get_latest_status_message();
+    echo "$status_message <br>";
 }
 
 ?>
@@ -44,7 +47,8 @@ if(isset($_POST["export_directory_file_paths_to_empty_csv"])){
 
         <h1>Start Page</h1>
         <p>This is a page for checking if a file exist in the allowed_files</p>
-        
+    
+
         <form method="post" action="">
 
             <label for="directory_path">Directory path: </label>
