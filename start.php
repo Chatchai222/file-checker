@@ -14,14 +14,14 @@ print_post();
 if(isset($_POST["update_file_existence_in_csv"])){
     echo "About to update file existence in CSV <br>";
     $absolute_csv_file_path = $_POST["csv_file_path_entry_bar"];
-    FileChecker::update_files_existence($absolute_csv_file_path);
+
 }
 
 if(isset($_POST["export_directory_file_paths_to_empty_csv"])){
     echo "About to export directory file paths to CSV <br>";
     $absolute_directory_path = $_POST["directory_path_entry_bar"];
     $absolute_csv_file_path = $_POST["csv_file_path_entry_bar"];
-    FileChecker::export_directory_to_csv($absolute_directory_path, $absolute_csv_file_path);
+
 }
 
 ?>
